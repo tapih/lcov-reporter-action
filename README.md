@@ -37,6 +37,9 @@ If set to true, only changed files will be included in the report. Total percent
 ##### `delete-old-comments` (**Default: false**)
 If set to true, old comments will be deleted before a new comment is posted
 
+##### `update-comment` (**Default: false**)
+If set to true, existing comments will be updated instead of creating a new one.
+
 ##### `title` (**Optional**)
 If included, will be added as a title for the comment produced.
 

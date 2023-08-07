@@ -6,7 +6,7 @@ import path from "path"
 import { parse } from "./lcov"
 import { diff } from "./comment"
 import { getChangedFiles } from "./get_changes"
-import { deleteOldComments } from "./delete_old_comments"
+import { deleteOldComments, getExistingComments } from "./delete_old_comments"
 import { normalisePath } from "./util"
 
 const MAX_COMMENT_CHARS = 65536
@@ -14,13 +14,15 @@ const MAX_COMMENT_CHARS = 65536
 async function main() {
 	const token = core.getInput("github-token")
 	const githubClient = new GitHub(token)
-	const workingDir = core.getInput('working-directory') || './';	
+	const workingDir = core.getInput('working-directory') || './';
 	const lcovFile = path.join(workingDir, core.getInput("lcov-file") || "./coverage/lcov.info")
 	const baseFile = core.getInput("lcov-base")
 	const shouldFilterChangedFiles =
 		core.getInput("filter-changed-files").toLowerCase() === "true"
 	const shouldDeleteOldComments =
 		core.getInput("delete-old-comments").toLowerCase() === "true"
+	const shouldUpdateComment =
+		core.getInput("update-comment").toLowerCase() === "true"
 	const title = core.getInput("title")
 
 	const raw = await fs.readFile(lcovFile, "utf-8").catch(err => null)
@@ -63,11 +65,27 @@ async function main() {
 	const baselcov = baseRaw && (await parse(baseRaw))
 	const body = diff(lcov, baselcov, options).substring(0, MAX_COMMENT_CHARS)
 
-	if (shouldDeleteOldComments) {
+	if (shouldDeleteOldComments && !shouldUpdateComment) {
 		await deleteOldComments(githubClient, options, context)
 	}
 
 	if (context.eventName === "pull_request") {
+		if (shouldUpdateComment) {
+			const existingComments = await getExistingComments(
+				githubClient,
+				options,
+				context,
+			)
+			if (existingComments.length > 0) {
+				await githubClient.issues.updateComment({
+					repo: context.repo.repo,
+					owner: context.repo.owner,
+					comment_id: existingComments[0].id,
+					body: body,
+				})
+				return
+			}
+		}
 		await githubClient.issues.createComment({
 			repo: context.repo.repo,
 			owner: context.repo.owner,

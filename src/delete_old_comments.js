@@ -18,7 +18,7 @@ export async function deleteOldComments(github, options, context) {
 	}
 }
 
-async function getExistingComments(github, options, context) {
+export async function getExistingComments(github, options, context) {
 	let page = 0
 	let results = []
 	let response
