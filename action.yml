@@ -20,11 +20,11 @@ inputs:
     required: false
     default: false
   delete-old-comments:
-    description: Set to true to delete old Coverage Report comments
+    description: Set to true to delete old Coverage Report comments (ignored if update-comment is true)
     required: false
     default: false
   update-comment:
-    description: Set to true to update existing comment instead of creating a new one (ignores delete-old-comments)
+    description: Set to true to update the existing comment instead of creating a new one
     required: false
     default: false
   working-directory:
