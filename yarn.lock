@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@actions/core@^1.2.0", "@actions/core@^1.9.1":
+"@actions/core@^1.9.1":
   "integrity" "sha512-2aZDDa3zrrZbP5ZYg159sNoLRb61nQ7awl5pSvIq5Qpj81vwDzdMRKzkWJGJuwVvWpvZKx7vspJALyvaaIQyug=="
   "resolved" "https://registry.npmjs.org/@actions/core/-/core-1.10.0.tgz"
   "version" "1.10.0"

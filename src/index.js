@@ -1,7 +1,5 @@
-import { promises as fs } from "fs"
 import core from "@actions/core"
 import { GitHub, context } from "@actions/github"
-import path from "path"
 
 import { readMerged } from "./lcov"
 import { diff } from "./comment"
@@ -21,6 +19,7 @@ async function main() {
 		core.getInput("filter-changed-files").toLowerCase() === "true"
 	const shouldDeleteOldComments =
 		core.getInput("delete-old-comments").toLowerCase() === "true"
+	const postTo = core.getInput("post-to").toLowerCase();
 	const title = core.getInput("title")
 
 	const options = {
@@ -51,24 +50,32 @@ async function main() {
 	const baselcov = basePaths.length > 0 && (await readMerged(basePaths, workingDir))
 	const body = diff(lcov, baselcov, options).substring(0, MAX_COMMENT_CHARS)
 
-	if (shouldDeleteOldComments) {
-		await deleteOldComments(githubClient, options, context)
-	}
-
-	if (context.eventName === "pull_request") {
-		await githubClient.issues.createComment({
-			repo: context.repo.repo,
-			owner: context.repo.owner,
-			issue_number: context.payload.pull_request.number,
-			body: body,
-		})
-	} else if (context.eventName === "push") {
-		await githubClient.repos.createCommitComment({
-			repo: context.repo.repo,
-			owner: context.repo.owner,
-			commit_sha: options.commit,
-			body: body,
-		})
+	switch (postTo) {
+		case "comment":
+			if (context.eventName === "pull_request") {
+					if (shouldDeleteOldComments) {
+						await deleteOldComments(githubClient, options, context)
+					}
+					await githubClient.issues.createComment({
+					repo: context.repo.repo,
+					owner: context.repo.owner,
+					issue_number: context.payload.pull_request.number,
+					body: body,
+				})
+			} else if (context.eventName === "push") {
+				await githubClient.repos.createCommitComment({
+					repo: context.repo.repo,
+					owner: context.repo.owner,
+					commit_sha: options.commit,
+					body: body,
+				})
+			}
+			break
+		case "job-summary":
+			await core.summary.addRaw(body).write()
+			break
+		default:
+			core.warning(`Unknown post-to value: '${postTo}'`)
 	}
 }
 

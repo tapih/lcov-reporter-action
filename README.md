@@ -40,6 +40,9 @@ If set to true, only changed files will be included in the report. Total percent
 ##### `delete-old-comments` (**Default: false**)
 If set to true, old comments will be deleted before a new comment is posted
 
+##### `post-to` (**Default: `comment`**)
+Post the coverage report to either "comment" or "job-summary".
+
 ##### `title` (**Optional**)
 If included, will be added as a title for the comment produced.
 
