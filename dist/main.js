@@ -23099,9 +23099,15 @@ const MAX_COMMENT_CHARS = 65536;
 async function main$1() {
 	const token = core$1.getInput("github-token");
 	const githubClient = new github_2(token);
+<<<<<<< HEAD
 	const workingDir = core$1.getInput('working-directory') || './';	
 	const lcovFile = path.join(workingDir, core$1.getInput("lcov-file") || "./coverage/lcov.info");
 	const baseFile = core$1.getInput("lcov-base");
+=======
+	const workingDir = core$1.getInput('working-directory') || './';
+	const lcovPaths = core$1.getMultilineInput("lcov-paths") || ["./coverage/lcov.info"];
+	const basePaths = core$1.getMultilineInput("lcov-base-paths");
+>>>>>>> 664a291 (fix)
 	const shouldFilterChangedFiles =
 		core$1.getInput("filter-changed-files").toLowerCase() === "true";
 	const shouldDeleteOldComments =
