@@ -72,7 +72,7 @@ async function main() {
 			}
 			break
 		case "job-summary":
-			await core.summary.addRaw(body).write()
+			await core.summary.addRaw(body).write({ overwrite: true })
 			break
 		default:
 			core.warning(`Unknown post-to value: '${postTo}'`)
