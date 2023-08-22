@@ -3,7 +3,7 @@ import core from "@actions/core"
 import { GitHub, context } from "@actions/github"
 import path from "path"
 
-import { parse } from "./lcov"
+import { readMerged } from "./lcov"
 import { diff } from "./comment"
 import { getChangedFiles } from "./get_changes"
 import { deleteOldComments } from "./delete_old_comments"
@@ -14,26 +14,14 @@ const MAX_COMMENT_CHARS = 65536
 async function main() {
 	const token = core.getInput("github-token")
 	const githubClient = new GitHub(token)
-	const workingDir = core.getInput('working-directory') || './';	
-	const lcovFile = path.join(workingDir, core.getInput("lcov-file") || "./coverage/lcov.info")
-	const baseFile = core.getInput("lcov-base")
+	const workingDir = core.getInput('working-directory') || './';
+	const lcovPaths = core.getMultilineInput("lcov-paths") || ["./coverage/lcov.info"]
+	const basePaths = core.getMultilineInput("lcov-base-paths")
 	const shouldFilterChangedFiles =
 		core.getInput("filter-changed-files").toLowerCase() === "true"
 	const shouldDeleteOldComments =
 		core.getInput("delete-old-comments").toLowerCase() === "true"
 	const title = core.getInput("title")
-
-	const raw = await fs.readFile(lcovFile, "utf-8").catch(err => null)
-	if (!raw) {
-		console.log(`No coverage report found at '${lcovFile}', exiting...`)
-		return
-	}
-
-	const baseRaw =
-		baseFile && (await fs.readFile(baseFile, "utf-8").catch(err => null))
-	if (baseFile && !baseRaw) {
-		console.log(`No coverage report found at '${baseFile}', ignoring...`)
-	}
 
 	const options = {
 		repository: context.payload.repository.full_name,
@@ -59,8 +47,8 @@ async function main() {
 		options.changedFiles = await getChangedFiles(githubClient, options, context)
 	}
 
-	const lcov = await parse(raw)
-	const baselcov = baseRaw && (await parse(baseRaw))
+	const lcov = await readMerged(lcovPaths, workingDir)
+	const baselcov = basePaths.length > 0 && (await readMerged(basePaths, workingDir))
 	const body = diff(lcov, baselcov, options).substring(0, MAX_COMMENT_CHARS)
 
 	if (shouldDeleteOldComments) {

@@ -23,13 +23,16 @@ For alternative `github-token` values see: [Creating Personal Access Tokens](htt
 ##### `working-directory` (**Default: ""**)
 Path to working directory the same as [default shell property](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun)
 
-##### `lcov-file` (**Optional**)
-The location of the lcov file to read the coverage report from. Defaults to
-`./coverage/lcov.info`. Path is relative to **working-directory** input
+##### `lcov-paths` (**Optional**)
+Glob expression to lcov paths resulting from running the tests in the target branch.
+Defaults to `./coverage/lcov.info`.
 
-##### `lcov-base` (**Optional**)
-The location of the lcov file resulting from running the tests in the base
-branch. When this is set a diff of the coverage percentages is shown.
+Path is relative to **working-directory** input
+
+##### `lcov-base-paths` (**Optional**)
+Glob expression to lcov paths resulting from running the tests in the base branch.
+When this is set a diff of the coverage percentages is shown.
+Path is relative to **working-directory** input
 
 ##### `filter-changed-files` (**Default: false**)
 If set to true, only changed files will be included in the report. Total percentage will still include all files.

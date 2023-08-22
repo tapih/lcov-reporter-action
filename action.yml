@@ -9,11 +9,11 @@ inputs:
     description: Github token
     required: true
     default: ${{ github.token }}
-  lcov-file:
-    description: The location of the lcov.info file
+  lcov-paths:
+    description: Glob expression to lcov paths resulting from running the tests in the target branch
     required: false
-  lcov-base:
-    description: The location of the lcov file for the base branch
+  lcov-base-paths:
+    description: Glob expression to lcov paths resulting from running the tests in the base branch
     required: false
   filter-changed-files:
     description: Set to true to only comment with coverage on files changed in this commit
@@ -24,7 +24,7 @@ inputs:
     required: false
     default: false
   working-directory:
-    description: Set working directory if project is not in root folder  
+    description: Set working directory if project is not in root folder
     required: false
     default: "./"
   title:
